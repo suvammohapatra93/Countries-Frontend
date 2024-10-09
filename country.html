@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Country Details</title>
+    <link rel="stylesheet" href="country.css" />
+  </head>
+  <body>
+    <header class="header-container">
+      <div class="header-content">
+        <h2 class="title"><a href="/">Where in the world?</a></h2>
+      </div>
+    </header>
+    <main>
+      <div class="country-details"></div>
+      <button id="back-button">Back</button>
+    </main>
+    <script>
+      const countryDetailsContainer =
+        document.querySelector(".country-details");
+      const backButton = document.getElementById("back-button");
+
+      // Function to get query parameters
+      function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+      }
+
+      const countryName = getQueryParam("name");
+
+      // Fetch country data based on the name
+      if (countryName) {
+        fetch(`https://restcountries.com/v3.1/name/${countryName}`)
+          .then((res) => res.json())
+          .then((data) => {
+            const country = data[0]; // Get the first result
+            countryDetailsContainer.innerHTML = `
+                        <img src="${country.flags.svg}" alt="${
+              country.name.common
+            } flag" />
+                        <h3>${country.name.common}</h3>
+                        <p><b>Population:</b> ${country.population.toLocaleString(
+                          "en-IN"
+                        )}</p>
+                        <p><b>Region:</b> ${country.region}</p>
+                        <p><b>Capital:</b> ${country.capital?.[0]}</p>
+                        <p><b>Languages:</b> ${Object.values(
+                          country.languages
+                        ).join(", ")}</p>
+                        <p><b>Currencies:</b> ${Object.values(
+                          country.currencies
+                        )
+                          .map((currency) => currency.name)
+                          .join(", ")}</p>
+                        <p><b>Area:</b> ${country.area} km²</p>
+                    `;
+          })
+          .catch((error) => {
+            console.error("Fetch error:", error);
+            countryDetailsContainer.innerHTML =
+              "<p>Error loading country details.</p>";
+          });
+      } else {
+        countryDetailsContainer.innerHTML = "<p>No country selected.</p>";
+      }
+
+      backButton.addEventListener("click", () => {
+        window.history.back();
+      });
+    </script>
+  </body>
+</html>
